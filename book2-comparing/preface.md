@@ -35,3 +35,5 @@ Codex 更接近从结构化控制层出发。它把 instruction fragment、threa
 @wquguru  
 2026.04.01  
 Claude Code 源码泄漏的愚人节
+
+btw. 您可以在 [harness-books.agentway.dev/book2-comparing](https://harness-books.agentway.dev/book2-comparing/) 访问在线版，获取更好的阅读体验
