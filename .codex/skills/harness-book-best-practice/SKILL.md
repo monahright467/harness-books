@@ -32,7 +32,7 @@ Prefer changing shared behavior in `tools/book-kit/` rather than reintroducing p
 
 Treat book release metadata as structured config, not manuscript text.
 
-- Store the stable public-facing field `release_date` in `book.meta.json`.
+- Store the stable public-facing field `release_date` in `book.json`.
 - Prefer deriving `revision` automatically from git in shared tooling instead of maintaining a manual version string.
 - Render release metadata through shared export templates, not by manually inserting it into `README.md`, chapter files, or cover artwork.
 - Preferred placement is the title page / colophon area for PDF and the cover section for print HTML.
@@ -58,8 +58,8 @@ Keep final exports per book under `exported/` with stable names:
 - `book2-comparing/exported/book2-comparing.pdf`
 - `book2-comparing/exported/book2-comparing-print.html`
 
-If a new output is added, put it in `book.meta.json` under `outputs`.
-Do not encode the primary release version only in the output filename. The canonical source of version truth should remain `book.meta.json`.
+If a new output is added, put it in `book.json` under `outputs`.
+Do not encode the primary release version only in the output filename. The canonical source of version truth should remain `book.json`.
 
 ## Build Policy
 
@@ -153,13 +153,15 @@ If TOC entries disappear near page breaks, inspect `tools/book-kit/export_book_p
 
 - Writing proposals, outlines, positioning notes, and other non-reader-facing editorial documents should live under `references/` in this skill, not inside `book1-claude-code/` or `book2-comparing/`.
 - Use `references/` for background material that helps future editing decisions but should not be treated as buildable manuscript content.
-- Current reference material includes `references/harness-engineering-book-proposal.md`.
+- Current reference material includes:
+  - `references/harness-engineering-book-proposal.md` (book1 proposal)
+  - `references/comparative-book-proposal.md` (book2 proposal)
 
 ## Editing Strategy
 
 - Prefer updating shared code in `tools/book-kit/` for behavior changes.
-- Prefer updating `book.meta.json` for per-book output naming.
-- Prefer updating `book.meta.json` for per-book release metadata such as `release_date`.
+- Prefer updating `book.json` for per-book output naming.
+- Prefer updating `book.json` for per-book release metadata such as `release_date`.
 - Keep `SUMMARY.md` aligned with the actual reading structure when the book uses Honkit navigation.
 - Avoid adding extra build scripts under individual books unless there is a clear book-specific requirement that cannot live in shared tooling.
 

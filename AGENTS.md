@@ -41,9 +41,9 @@ Use `--clean` or `--clean-generated` when rebuild hygiene matters. Prefer shared
 
 ## Book Metadata
 
-Treat release metadata as first-class book configuration in each `book.meta.json`.
+Treat release metadata as first-class book configuration in each `book.json`.
 
-- Put the stable public field `release_date` in `book.meta.json`
+- Put the stable public field `release_date` in `book.json`
 - Let shared tooling derive `revision` from git automatically unless a manual `revision` override is truly needed
 - Render release metadata through shared templates in `tools/book-kit/`, not by hardcoding values in Markdown chapters
 - Prefer showing release metadata on the PDF/print title page or colophon area, not in running headers or chapter titles

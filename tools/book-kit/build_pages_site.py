@@ -879,12 +879,6 @@ def parse_args() -> argparse.Namespace:
 
 def load_book_metadata(book_dir: Path) -> dict[str, str]:
     book_json = json.loads((book_dir / "book.json").read_text(encoding="utf-8"))
-    book_meta_path = book_dir / "book.meta.json"
-    book_meta = (
-        json.loads(book_meta_path.read_text(encoding="utf-8"))
-        if book_meta_path.exists()
-        else {}
-    )
     extras = {
         "book1-claude-code": {
             "cover": f"{book_dir.name}/assets/cover-wxb.svg",
@@ -910,7 +904,7 @@ def load_book_metadata(book_dir: Path) -> dict[str, str]:
         "lede": extras.get("lede", book_json.get("description", "")),
         "summary": extras.get("summary", book_json.get("description", "")),
         "facts": extras.get("facts", ()),
-        "pdf_path": book_meta.get("outputs", {}).get("pdf", ""),
+        "pdf_path": book_json.get("outputs", {}).get("pdf", ""),
     }
 
 

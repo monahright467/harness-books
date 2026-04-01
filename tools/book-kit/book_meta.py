@@ -22,7 +22,7 @@ def resolve_book_dir(raw_path: str | None) -> Path:
 
 
 def load_meta(book_dir: Path) -> dict:
-    meta_path = book_dir / "book.meta.json"
+    meta_path = book_dir / "book.json"
     if not meta_path.exists():
         raise SystemExit(f"Missing book metadata: {meta_path}")
     return json.loads(meta_path.read_text(encoding="utf-8"))
