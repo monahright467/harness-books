@@ -1,6 +1,6 @@
 # Summary
 
-- [封面与导读](index.md)
+- [导读](index.md)
 - [阅读地图：如何理解第一本书与这本比较书](chapter-00-reading-map.md)
 - [序言 两套 Harness，不必假装是同一匹马的附件](preface.md)
 - [第 1 章 为什么要把 Claude Code 和 Codex 放在一起看](chapter-01-why-this-comparison.md)

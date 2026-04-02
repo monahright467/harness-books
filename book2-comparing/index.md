@@ -1,4 +1,4 @@
-# Claude Code 和 Codex 的 Harness 设计哲学
+# 导读
 
 ![封面：Claude Code 和 Codex 的 Harness 设计哲学](assets/cover-wxb.svg)
 

@@ -1,4 +1,4 @@
-# Harness Engineering：Claude Code 设计指南
+# 导读
 
 ![封面：Harness Engineering：Claude Code 设计指南](assets/cover-wxb.svg)
 
@@ -14,18 +14,18 @@
 
 建议阅读顺序：
 
-1. [前言](preface.md)
-2. [第 1 章 为什么 Harness Engineering 不是 Prompt Engineering 的大号别名](chapter-01-why-harness-engineering.md)
-3. [第 2 章 Prompt 不是输入框，而是控制面](chapter-02-prompt-is-control-plane.md)
-4. [第 3 章 Query Loop：Agent 不是在答题，而是在持续接管工作流](chapter-03-query-loop-heartbeat.md)
-5. [第 4 章 工具、权限与中断：怎样让模型动手，但不让它乱动手](chapter-04-tools-permissions-interrupts.md)
-6. [第 5 章 上下文、记忆与压缩：怎样让系统长期工作而不是越聊越糊](chapter-05-context-memory-compact.md)
-7. [第 6 章 错误与恢复：模型犯错不是异常，而是运行时常态](chapter-06-errors-and-recovery.md)
-8. [第 7 章 多 Agent 与验证：不要让系统自己给自己当裁判](chapter-07-multi-agent-and-verification.md)
-9. [第 8 章 团队落地：把个人技巧变成组织能力](chapter-08-team-landing-practices.md)
-10. [第 9 章 十条原则：如何判断一个 AI 编程系统是不是工程系统](chapter-09-ten-principles.md)
-11. [附录 A 检查清单](appendix-a-checklists.md)
-12. [附录 B 图稿说明](appendix-b-diagram-notes.md)
-13. [附录 C 源码地图](appendix-c-source-map.md)
+1. [序言 Harness、终端与工程约束](preface.md)
+2. [第 1 章 为什么需要 Harness Engineering](chapter-01-why-harness-engineering.md)
+3. [第 2 章 Prompt 不是人格，Prompt 是控制平面](chapter-02-prompt-is-control-plane.md)
+4. [第 3 章 Query Loop：代理系统的心跳](chapter-03-query-loop-heartbeat.md)
+5. [第 4 章 工具、权限与中断：为什么代理不能直接碰世界](chapter-04-tools-permissions-interrupts.md)
+6. [第 5 章 上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度](chapter-05-context-memory-compact.md)
+7. [第 6 章 错误与恢复：出错后仍能继续工作的代理系统](chapter-06-errors-and-recovery.md)
+8. [第 7 章 多代理与验证：用分工和验证管理不稳定性](chapter-07-multi-agent-and-verification.md)
+9. [第 8 章 团队落地：把一个聪明工具变成可复用制度](chapter-08-team-landing-practices.md)
+10. [第 9 章 Harness Engineering 十条原则](chapter-09-ten-principles.md)
+11. [附录 A 检查清单：把原则落成能执行的约束](appendix-a-checklists.md)
+12. [附录 B 图示：把运行时骨架画出来](appendix-b-diagram-notes.md)
+13. [附录 C 源码地图：本书各章主要依据哪些文件](appendix-c-source-map.md)
 
 如果只想先看总判断，可以直接跳到[第 9 章](chapter-09-ten-principles.md)。
