@@ -22,15 +22,15 @@
   <line x1="494" y1="272" x2="494" y2="966" stroke="#b6ab9b" stroke-width="3"/>
   <line x1="800" y1="272" x2="800" y2="966" stroke="#b6ab9b" stroke-width="3"/>
 
-  <text x="188" y="212" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="28" letter-spacing="6">AGENTWAY / HARNESS BOOKS</text>
+  <text x="188" y="212" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="5">AGENTWAY / HARNESS BOOKS</text>
 
-  <text x="216" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="36">CONTROL PLANE</text>
+  <text x="216" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="33">CONTROL PLANE</text>
   <text x="544" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="42">LOOP</text>
-  <text x="832" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="40">RECOVERY</text>
+  <text x="832" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="38">RECOVERY</text>
 
-  <text x="214" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">PERMISSIONS</text>
-  <text x="546" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">INTERRUPTS</text>
-  <text x="866" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">VERIFICATION</text>
+  <text x="214" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="32">PERMISSIONS</text>
+  <text x="546" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="32">INTERRUPTS</text>
+  <text x="866" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="32">VERIFICATION</text>
 
   <text x="1152" y="430" fill="#efe7d9" font-family="Georgia, 'Times New Roman', serif" font-size="28">Order first,</text>
   <text x="1152" y="474" fill="#efe7d9" font-family="Georgia, 'Times New Roman', serif" font-size="28">cleverness later.</text>

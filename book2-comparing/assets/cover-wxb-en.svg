@@ -19,7 +19,7 @@
   <line x1="800" y1="280" x2="800" y2="1072" stroke="#7b1e1e" stroke-width="10"/>
   <line x1="146" y1="676" x2="1454" y2="676" stroke="#7b1e1e" stroke-width="8"/>
 
-  <text x="146" y="228" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="28" letter-spacing="6">AGENTWAY / COMPARATIVE HARNESS NOTES</text>
+  <text x="146" y="224" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="24" letter-spacing="4">AGENTWAY / COMPARATIVE HARNESS NOTES</text>
 
   <text x="222" y="484" fill="#f3ece0" font-family="Georgia, 'Times New Roman', serif" font-size="58">Claude Code</text>
   <text x="222" y="562" fill="#f3ece0" font-family="Georgia, 'Times New Roman', serif" font-size="30">Control first lands in runtime.</text>
@@ -31,9 +31,11 @@
   <text x="876" y="642" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="2">POLICY AND LOCAL RULES</text>
   <text x="876" y="760" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">Rules live at the system edge.</text>
 
-  <text x="146" y="1244" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700">The Harness Design Philosophies</text>
-  <text x="146" y="1376" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700">of Claude Code and Codex</text>
-  <text x="146" y="1566" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="62">Convergence through different roads, or separate branches?</text>
+  <text x="146" y="1228" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="700">The Harness Design</text>
+  <text x="146" y="1342" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="700">Philosophies of</text>
+  <text x="146" y="1456" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="700">Claude Code and Codex</text>
+  <text x="146" y="1600" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="52">Convergence through different roads,</text>
+  <text x="146" y="1674" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="52">or separate branches?</text>
 
   <text x="146" y="1930" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">System builders are just people</text>
   <text x="146" y="2006" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">who write inevitable damage</text>
