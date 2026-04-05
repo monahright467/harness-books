@@ -1061,7 +1061,8 @@ def load_book_metadata(book_dir: Path, locale: str) -> dict[str, str]:
     }
     extras = extras_by_locale.get(locale, {}).get(book_dir.name, {})
     prefix = locale_prefix(locale)
-    cover = f"{book_dir.name}/assets/cover-wxb.svg" if not prefix else f"{prefix}/{book_dir.name}/assets/cover-wxb.svg"
+    cover_rel = str(book_json.get("cover_image", f"assets/cover-wxb.svg")).strip() or "assets/cover-wxb.svg"
+    cover = f"{book_dir.name}/{cover_rel}" if not prefix else f"{prefix}/{book_dir.name}/{cover_rel}"
     return {
         "slug": book_dir.name,
         "locale": locale,

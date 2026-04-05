@@ -14,7 +14,7 @@
   "release_date": "2026-04-01",
   "draft_label": "Draft",
   "front_page_heading": "Introduction",
-  "cover_image": "assets/cover-wxb.svg",
+  "cover_image": "assets/cover-wxb-en.svg",
   "cover_alt": "Cover: The Harness Design Philosophies of Claude Code and Codex",
   "outputs": {
     "print_html": "exported/book2-comparing-en-print.html",

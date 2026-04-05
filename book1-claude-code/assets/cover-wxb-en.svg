@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2560" viewBox="0 0 1600 2560" role="img" aria-labelledby="title desc">
+  <title id="title">Harness Engineering: A Design Guide to Claude Code</title>
+  <desc id="desc">Full-bleed book cover in paper white, black, and dark maroon. The composition emphasizes control plane, loops, recovery, and verification.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6f1e7"/>
+      <stop offset="100%" stop-color="#e9dfcf"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="2560" fill="url(#paper)"/>
+  <rect x="0" y="0" width="1600" height="122" fill="#111111"/>
+  <rect x="0" y="122" width="96" height="2438" fill="#111111"/>
+  <rect x="1504" y="122" width="96" height="2438" fill="#7b1e1e"/>
+  <rect x="96" y="1830" width="1408" height="730" fill="#111111"/>
+  <rect x="96" y="1460" width="1408" height="26" fill="#7b1e1e"/>
+
+  <rect x="188" y="272" width="930" height="694" fill="none" stroke="#111111" stroke-width="6"/>
+  <rect x="1118" y="272" width="294" height="694" fill="#111111"/>
+  <line x1="188" y1="504" x2="1412" y2="504" stroke="#7b1e1e" stroke-width="8"/>
+  <line x1="188" y1="736" x2="1412" y2="736" stroke="#111111" stroke-width="4"/>
+  <line x1="494" y1="272" x2="494" y2="966" stroke="#b6ab9b" stroke-width="3"/>
+  <line x1="800" y1="272" x2="800" y2="966" stroke="#b6ab9b" stroke-width="3"/>
+
+  <text x="188" y="212" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="28" letter-spacing="6">AGENTWAY / HARNESS BOOKS</text>
+
+  <text x="216" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="36">CONTROL PLANE</text>
+  <text x="544" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="42">LOOP</text>
+  <text x="832" y="432" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="40">RECOVERY</text>
+
+  <text x="214" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">PERMISSIONS</text>
+  <text x="546" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">INTERRUPTS</text>
+  <text x="866" y="666" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">VERIFICATION</text>
+
+  <text x="1152" y="430" fill="#efe7d9" font-family="Georgia, 'Times New Roman', serif" font-size="28">Order first,</text>
+  <text x="1152" y="474" fill="#efe7d9" font-family="Georgia, 'Times New Roman', serif" font-size="28">cleverness later.</text>
+  <text x="1152" y="640" fill="#c7beb0" font-family="Georgia, 'Times New Roman', serif" font-size="22" letter-spacing="2">SYSTEM FIRST</text>
+  <text x="1152" y="678" fill="#c7beb0" font-family="Georgia, 'Times New Roman', serif" font-size="22" letter-spacing="2">MODEL SECOND</text>
+
+  <text x="188" y="1166" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="128" font-weight="700">Harness</text>
+  <text x="188" y="1324" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="128" font-weight="700">Engineering</text>
+  <text x="188" y="1558" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="68">A Design Guide to Claude Code</text>
+
+  <text x="188" y="1934" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="52">A system proves its dignity</text>
+  <text x="188" y="2012" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="52">not by how smoothly it speaks,</text>
+  <text x="188" y="2090" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="52">but by who catches the mess</text>
+  <text x="188" y="2168" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="52">when execution goes wrong.</text>
+
+  <line x1="188" y1="2298" x2="1412" y2="2298" stroke="#7b1e1e" stroke-width="3"/>
+  <text x="188" y="2376" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="30" letter-spacing="2">CONTROL PLANE / QUERY LOOP / RECOVERY / VERIFICATION</text>
+  <text x="188" y="2432" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="24">Engineering principles for controllable AI coding systems</text>
+  <text x="188" y="2472" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="24">distilled from source-level runtime design</text>
+  <text x="1412" y="2472" text-anchor="end" fill="#d34a43" font-family="Georgia, 'Times New Roman', serif" font-size="30" letter-spacing="2">agentway.dev</text>
+</svg>

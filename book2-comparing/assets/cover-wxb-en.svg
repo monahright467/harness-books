@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2560" viewBox="0 0 1600 2560" role="img" aria-labelledby="title desc">
+  <title id="title">The Harness Design Philosophies of Claude Code and Codex</title>
+  <desc id="desc">Full-bleed comparative cover in paper white, black, and dark maroon, emphasizing the tension between Claude Code and Codex.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6f1e7"/>
+      <stop offset="100%" stop-color="#e9dfcf"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="2560" fill="url(#paper)"/>
+  <rect x="0" y="0" width="1600" height="140" fill="#111111"/>
+  <rect x="0" y="140" width="1600" height="28" fill="#7b1e1e"/>
+  <rect x="0" y="1824" width="1600" height="736" fill="#111111"/>
+
+  <rect x="146" y="280" width="1308" height="792" fill="none" stroke="#111111" stroke-width="6"/>
+  <rect x="146" y="280" width="654" height="792" fill="#111111"/>
+  <rect x="800" y="280" width="654" height="792" fill="#efe6d7"/>
+  <line x1="800" y1="280" x2="800" y2="1072" stroke="#7b1e1e" stroke-width="10"/>
+  <line x1="146" y1="676" x2="1454" y2="676" stroke="#7b1e1e" stroke-width="8"/>
+
+  <text x="146" y="228" fill="#6e675f" font-family="Georgia, 'Times New Roman', serif" font-size="28" letter-spacing="6">AGENTWAY / COMPARATIVE HARNESS NOTES</text>
+
+  <text x="222" y="484" fill="#f3ece0" font-family="Georgia, 'Times New Roman', serif" font-size="58">Claude Code</text>
+  <text x="222" y="562" fill="#f3ece0" font-family="Georgia, 'Times New Roman', serif" font-size="30">Control first lands in runtime.</text>
+  <text x="222" y="642" fill="#c8beb1" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="2">RUNTIME DISCIPLINE</text>
+  <text x="222" y="760" fill="#f3ece0" font-family="Georgia, 'Times New Roman', serif" font-size="34">Order lives in execution.</text>
+
+  <text x="876" y="484" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="58">Codex</text>
+  <text x="876" y="562" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="30">Defenses start in the control layer.</text>
+  <text x="876" y="642" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="2">POLICY AND LOCAL RULES</text>
+  <text x="876" y="760" fill="#111111" font-family="Georgia, 'Times New Roman', serif" font-size="34">Rules live at the system edge.</text>
+
+  <text x="146" y="1244" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700">The Harness Design Philosophies</text>
+  <text x="146" y="1376" fill="#161616" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700">of Claude Code and Codex</text>
+  <text x="146" y="1566" fill="#7b1e1e" font-family="Georgia, 'Times New Roman', serif" font-size="62">Convergence through different roads, or separate branches?</text>
+
+  <text x="146" y="1930" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">System builders are just people</text>
+  <text x="146" y="2006" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">who write inevitable damage</text>
+  <text x="146" y="2082" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">into control flow early enough</text>
+  <text x="146" y="2158" fill="#f4ede0" font-family="Georgia, 'Times New Roman', serif" font-size="50">that it cannot govern them later.</text>
+
+  <line x1="146" y1="2286" x2="1454" y2="2286" stroke="#7b1e1e" stroke-width="3"/>
+  <text x="146" y="2364" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="29" letter-spacing="2">CONTROL / LOOP / POLICY / STATE / LOCAL GOVERNANCE / VERIFICATION</text>
+  <text x="146" y="2424" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="24">A comparative engineering notebook on control layers, state governance,</text>
+  <text x="146" y="2464" fill="#d7cdbd" font-family="Georgia, 'Times New Roman', serif" font-size="24">tool boundaries, and organizational discipline</text>
+  <text x="1454" y="2464" text-anchor="end" fill="#d34a43" font-family="Georgia, 'Times New Roman', serif" font-size="30" letter-spacing="2">agentway.dev</text>
+</svg>

@@ -197,9 +197,12 @@ def normalize_readme(
 ) -> str:
     lines = text.splitlines()
     filtered: list[str] = []
+    normalized_front_heading = f"# {front_page_heading}".strip()
     for line in lines:
         stripped = line.strip()
         if stripped == f"# {title}":
+            continue
+        if stripped == normalized_front_heading:
             continue
         if cover_alt and stripped.startswith(f"![{cover_alt}]("):
             continue
