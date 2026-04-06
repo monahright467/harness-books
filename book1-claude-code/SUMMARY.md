@@ -9,7 +9,7 @@
 - [第 5 章 上下文治理：Memory、CLAUDE.md 与 Compact 是预算制度](chapter-05-context-memory-compact.md)
 - [第 6 章 错误与恢复：出错后仍能继续工作的代理系统](chapter-06-errors-and-recovery.md)
 - [第 7 章 多代理与验证：用分工和验证管理不稳定性](chapter-07-multi-agent-and-verification.md)
-- [第 8 章 团队落地：把一个聪明工具变成可复用制度](chapter-08-team-landing-practices.md)
+- [第 8 章 团队落地：把一个聪明工具变成可承受的工作流](chapter-08-team-landing-practices.md)
 - [第 9 章 Harness Engineering 十条原则](chapter-09-ten-principles.md)
 - [附录 A 检查清单：把原则落成能执行的约束](appendix-a-checklists.md)
 - [附录 B 图示：把运行时骨架画出来](appendix-b-diagram-notes.md)
