@@ -37,7 +37,7 @@ Codex 则适合提醒你：别把控制层做成一团心照不宣。instruction
 - 审批逻辑混在代码里，难以解释
 - 多种扩展能力接进来以后，边界越来越模糊
 
-这时候最需要的，是把控制层显式化。先把 instruction、tool、policy、thread 这些概念立住，再让 runtime 在里面工作。
+这时候最需要的，是把控制层显式化。先把 instruction、tool、policy、thread 这些概念定义清楚，再让 runtime 在里面工作。
 
 ### 第三种：还没有成型系统，准备从零开始
 
