@@ -32,7 +32,7 @@ Claude Code 的地方化能力，很大一部分落在：
 
 Codex 也有 skill，也有本地规则，也有 hook，但气质明显更制度化。
 
-先看 skill。`codex-rs/skills/src/lib.rs` 显示系统会把内置 system skills 安装到 `CODEX_HOME/skills/.system`，还会对 skill 资产做 hash/fingerprint。这个细节很说明问题，因为它表明 skill 在 Codex 里不只是临时读入的文本，而是“被安装、被管理、可追踪版本形态”的资产。
+先看 skill。`skills/src/lib.rs` 显示系统会把内置 system skills 安装到 `CODEX_HOME/skills/.system`，还会对 skill 资产做 hash/fingerprint。这个细节很说明问题，因为它表明 skill 在 Codex 里不只是临时读入的文本，而是“被安装、被管理、可追踪版本形态”的资产。
 
 再看 `AGENTS.md`。这套机制在 Codex 中不只表示“读一份本地说明”，还伴随着作用域和 hierarchy 的讨论。也就是说，局部规则不只是内容，还带着位置关系。
 

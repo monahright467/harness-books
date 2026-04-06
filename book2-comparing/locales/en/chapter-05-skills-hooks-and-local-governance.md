@@ -32,7 +32,7 @@ That is highly practical. It fits environments where multiple projects, director
 
 Codex also has skills, local rules, and hooks, but the temperament is more institutional.
 
-Start with skills. `codex-rs/skills/src/lib.rs` shows that system skills are installed into `CODEX_HOME/skills/.system` and tracked with hashes or fingerprints. That is revealing, because it means a skill in Codex is not merely text temporarily read into context. It is an installed, managed, versionable asset.
+Start with skills. `skills/src/lib.rs` shows that system skills are installed into `CODEX_HOME/skills/.system` and tracked with hashes or fingerprints. That is revealing, because it means a skill in Codex is not merely text temporarily read into context. It is an installed, managed, versionable asset.
 
 Then look at `AGENTS.md`. In Codex this does not merely mean "read a local note." It comes with ideas of scope and hierarchy. In other words, local rules are not only content. They carry positional relationships.
 
