@@ -2,11 +2,9 @@
 
 ## 1.1 The core problem is keeping the model from going off script
 
-In recent years people have loved talking about agents. The word often carries an easy optimism: if a model can write some code and call some tools, it can work independently in a terminal like a junior engineer. But terminals and filesystems have consequences. Once a speaking probability distribution can touch shell, Git, networks, and local files, the problem shifts from "the answer is not good enough" to "execution caused real damage."
+Once a speaking probability distribution can touch shell, Git, networks, and local files, the problem shifts from "the answer is not good enough" to "execution caused real damage." Harness Engineering is about constraining that unstable core component into a manageable system. It addresses one practical fact: models are not trustworthy by default.
 
-So the center of the problem has always been how to constrain it into a manageable system. Harness Engineering is exactly about that. A harness is an institutional control plane that addresses one practical fact: models are not trustworthy by default.
-
-That judgment is not always pleasant, but it is usually useful. If an agent system is going into real engineering environments, it first has to admit that its core component is unstable. Ignore that, and the problem usually resurfaces in logs and incident reports.
+That judgment is not always pleasant, but it is usually useful. Ignore it, and the problem usually resurfaces in logs and incident reports.
 
 ## 1.2 Claude Code's first harness layer: a constrained conversation system
 
@@ -23,6 +21,16 @@ Pause on this point. Many prompt discussions still sit at the rhetorical level o
 More importantly, this prompt is assembled in segments. In `getSystemPrompt()` at `src/constants/prompts.ts:444`, static and dynamic parts are explicitly split, with memory, language, output style, MCP instructions, and scratchpad injected by section. In `src/utils/systemPrompt.ts:28`, default prompt, custom prompt, agent prompt, and appended prompt are then composed via explicit precedence rules.
 
 This reflects a plain engineering fact: a truly usable agent system cannot rely on one "universal prompt" to solve everything. It must split control into layers, then split layers into responsibilities. Otherwise every new reminder and prohibition quickly conflicts with others, and behavior becomes unpredictable.
+
+### Invariants: three hard constraints on the control plane
+
+```
+assert prompt.layers ⊇ {default, project, custom, agent, append}    # identity ≠ runtime
+assert ∀ tool_call t: scheduler.decides_concurrency(t) before exec(t) # tools are scheduled
+assert on recoverable_error: route ∈ {recover, terminate_clean}      # errors are main-path
+```
+
+The moment any one of these is bypassed, the query loop, tools, context, and recovery mechanisms in later chapters all start to look suspect.
 
 ## 1.3 The second harness layer: the agent depends on a continuous loop
 

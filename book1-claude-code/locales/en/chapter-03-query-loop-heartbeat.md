@@ -2,15 +2,13 @@
 
 ## 3.1 To judge maturity, first ask whether the system has a loop
 
-If we treat a code-writing model as an agent system, the easiest mistake is imagining it as an upgraded Q&A API: user sends one message, model returns one output, task done. This idea is not baseless because many model products do work like this. But once the system starts calling tools, spanning turns, handling interrupts, persisting state, retrying failures, and compacting context, one-shot Q&A understanding collapses quickly.
+Imagining a code-writing model as an upgraded Q&A API is the easiest mistake: once the system starts calling tools, spanning turns, handling interrupts, persisting state, and compacting context, one-shot Q&A collapses. Claude Code structurally admits that agents depend on continuous, stateful execution.
 
-Claude Code does not make that mistake. Structurally, it explicitly admits that agents depend on continuous, stateful execution.
-
-You can see this clearly in `query()` at `src/query.ts:219` and `queryLoop()` at `src/query.ts:241`. The former is shell; the latter is core. `queryLoop()` is not a model call wrapped in `try/catch`. It maintains cross-iteration state, performs pre-governance steps, enters model streaming stage, then decides whether to execute tools, recover, compact, continue next turn, or terminate.
+`query()` at `src/query.ts:219` is shell; `queryLoop()` at `src/query.ts:241` is core. It maintains cross-iteration state, performs pre-governance, streams model output, then decides whether to execute tools, recover, compact, continue, or terminate.
 
 ![Claude Code Query Loop Core](diagrams/diag-ch03-01-query-loop-core.png)
 
-This means Claude Code's center is execution order inside one conversation. The key word is lifecycle. Whether a system deserves to be called an agent is often determined less by how it talks and more by whether it still knows what it is doing several turns later.
+The key word is lifecycle. Whether a system deserves to be called an agent is determined less by how it talks and more by whether it still knows what it is doing several turns later.
 
 ## 3.2 State is core business, not baggage
 
@@ -30,9 +28,30 @@ Claude Code is explicit here. In `src/query.ts:203` to `:217`, mutable query-loo
 
 At `src/query.ts:268`, these are assembled into one `State` object when query loop starts, and updated as a whole through continue branches.
 
-This matters. Claude Code does not scatter recovery, compaction, budget, hooks, and turn counting across ad hoc local booleans. It treats them as one basis for "how next turn continues after this turn ends." State is part of heartbeat.
+Claude Code does not scatter recovery, compaction, budget, hooks, and turn counting across ad hoc local booleans. Scripts ask only whether this step finished. Agent systems must also ask whether the next step can continue from the state left by a failed step.
 
-That is a key difference between mature agent systems and disposable scripts. Scripts ask only whether this step finished. Agent systems must also ask whether the next step can continue from the state left by a failed step.
+### Skeleton: queryLoop()
+
+```
+// skeleton: queryLoop()  (src/query.ts:203–1305)
+state = { messages, toolUseContext, autoCompactTracking,
+          maxOutputTokensRecoveryCount, hasAttemptedReactiveCompact,
+          pendingToolUseSummary, stopHookActive, turnCount, transition }
+
+while not done(state):
+    govern_input(state)                 // prefetch / snip / microcompact / collapse / autocompact
+    events = stream_model(state)
+    for e in events:
+        if e.is(tool_use):  schedule(e, state.toolUseContext)
+        if e.is(api_error): return surface(e)
+    if interrupted:
+        drain_tools_with_synthetic_results(state); break
+    state = advance(state, recover_if_needed(state))
+
+assert state.turnCount_{t+1} >= state.turnCount_t            # state is monotonic
+assert every emitted tool_use has a matching tool_result     # ledger is closed
+assert hasAttemptedReactiveCompact ⇒ no further compact      # no self-loop
+```
 
 ## 3.3 The first duty of query loop is input governance
 
@@ -115,6 +134,19 @@ You can see this from `src/query.ts:1062` through `:1305`. The stop-hooks sectio
 
 This is worth attention. Many systems have only one naive rule: retry if failed. Claude Code admits retry itself needs governance. Runtime must know why retrying, what already tried, which protection state cannot reset, and what patterns lead to infinity. These decisions separate systems that "keep trying" from systems that "know when not to try again."
 
+### Stop-condition failure matrix
+
+| Event order | Pre-state | Trigger | Next |
+|---|---|---|---|
+| stream done + `tool_use` | pending tool_use present | stop reason | follow-up, execute tools |
+| stream done, no `tool_use` | no pending tool | stop reason | enter stop hooks |
+| user interrupt | any | abort signal | drain remaining results, yield synthetic tool_result |
+| prompt_too_long | compact not yet tried | recoverable error | collapse drain / reactive compact |
+| max_output_tokens | cap < MAX | stop reason | raise `maxOutputTokensOverride`, re-run |
+| max_output_tokens | cap = MAX | stop reason | append meta user msg, continue writing |
+| stop hook block + PTL recurs | `hasAttemptedReactiveCompact` | double failure | skip stop hooks, surface error |
+| API error | — | api_error | return directly, no retry |
+
 ## 3.8 QueryEngine proves this belongs to conversation lifecycle
 
 If `queryLoop()` were not enough evidence, `QueryEngine` makes it explicit.
@@ -139,22 +171,7 @@ This chapter can be compressed into one line:
 
 > The core capability of an agent system is maintaining a recoverable execution loop.
 
-Claude Code source supports this across key points:
-
-- `query.ts` uses explicit `State` for cross-turn execution, not ad hoc locals
-- Long input-governance stages before model call show runtime precedes reasoning
-- Streaming consumption treats output as events, not final prose
-- Interrupt paths synthesize missing tool results, preserving causal closure
-- Prompt-too-long, max-output-tokens, and stop hooks each have explicit recovery branches, making failure part of main path
-- `QueryEngine.ts` explicitly treats query lifecycle as conversation-owned object
-
-This implies that mature agent heartbeat must satisfy at least:
-
-- explicit cross-turn state
-- active input governance rather than passive input consumption
-- stream-based model output handling
-- ledger closure after interrupt
-- clear distinction among completion, failure, recovery, and continuation
+The skeleton, invariants, and stop-condition matrix above already line up the evidence. One line suffices to close: a mature agent heartbeat must simultaneously govern cross-turn state, input governance, streaming consumption, the interrupt ledger, and the distinction between {completion, failure, recovery, continuation}.
 
 Without these structures, systems may still produce attractive demos, but they are closer to staged performances than runtimes. Performances have value, but they do not replace order.
 

@@ -2,18 +2,9 @@
 
 ## 6.1 The least trustworthy sentence in engineering is "under normal conditions"
 
-In many system design docs, the most common shortcut is describing only the "normal path," as if beautiful happy-path flow makes errors secondary by default. Once agent systems enter real runtime, this collapses quickly. In reality, everything breaks:
+Many design docs describe only the "normal path," as if a pretty happy-path flow could make errors secondary. Once agent systems enter real runtime, this breaks fast: models get truncated, requests go too long, hooks create loops, tools get interrupted, fallback paths trigger, and recovery logic itself fails.
 
-- models get truncated
-- requests get too long
-- hooks create loops
-- tools get interrupted
-- fallback paths trigger
-- recovery logic itself fails
-
-So maturity cannot be judged by how human-like the system sounds in smooth scenarios. It must be judged by whether failures look like system behavior. The former can be cosmetically improved with prompt tricks; the latter requires runtime discipline.
-
-Claude Code's strength here is not pretending errors are rare. Source repeatedly reflects a calm assumption: errors are part of the main path, and recovery must be predesigned runtime mechanism.
+Maturity cannot be judged by how human-like the system sounds when smooth; it must be judged by whether failures look like system behavior. Claude Code's strength here is not pretending errors are rare. Source repeatedly reflects a calm assumption: errors are part of the main path, and recovery must be predesigned runtime mechanism.
 
 ## 6.2 `prompt too long` is seasonal, not exceptional
 
@@ -73,6 +64,29 @@ Circuit breaking means admitting current recovery method is ineffective in curre
 
 Harness Engineering principle here is hard and clear: any automated recovery must be countable, rate-limited, and breakable.
 
+### Circuit-breaker invariants
+
+```
+assert withheld_error ∈ {prompt_too_long, media_size, max_output_tokens}  # recoverable set is fixed
+assert hasAttemptedReactiveCompact ⇒ skip further reactive compact        # no self-loop
+assert consecutiveFailures < MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES          # breaker engaged
+assert compact aborted by user ⇏ summary_success                           # abort ≠ success
+assert every withheld recoverable_error surfaces iff recovery exhausted    # withheld must exit
+```
+
+### Recovery-path failure matrix
+
+| Event order | Pre-state | Trigger | Next | Threshold |
+|---|---|---|---|---|
+| PTL → collapse | `stagedCollapse > 0` | `prompt_too_long` | `recoverFromOverflow()` | — |
+| PTL → compact | `stagedCollapse = 0` | `prompt_too_long` | `tryReactiveCompact()` | once per turn |
+| PTL → surface | `hasAttemptedReactiveCompact` | `prompt_too_long` | surface directly; skip stop hooks | — |
+| compact PTL | compact input too long | inner `prompt_too_long` | `truncateHeadForPTLRetry()` | drops early API rounds in chunks |
+| MOT → cap↑ | cap < MAX | `max_output_tokens` | raise `maxOutputTokensOverride` | cap ∈ {conservative, max} |
+| MOT → continue | cap = MAX | `max_output_tokens` | append meta user msg, continue | no recap, no apology |
+| autocompact streak | `consecutiveFailures` ≥ threshold | next trigger | skip compact, surface | `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3` |
+| user abort | streaming with pending `tool_use` | Esc | consume remaining + synthetic `tool_result` | ledger must close |
+
 ## 6.6 Compact itself can fail, so recovery action needs its own recovery
 
 `compactConversation()` contains a very realistic moment: compact requests themselves can hit `prompt too long`.
@@ -91,36 +105,17 @@ Value of this choice: it does not deny hard limits. When the system is choking, 
 
 ## 6.7 Abort semantics: interrupts are part of recovery
 
-Many teams classify abort under UX only and avoid putting it in recovery discussion. Runtime-wise, interrupts are failure states requiring semantic closure.
+Many teams classify abort under UX only. Runtime-wise, interrupts are failure states requiring semantic closure.
 
-Claude Code handles this seriously at two layers.
+Claude Code handles this at two layers. In `query.ts`, streaming interrupt consumes `StreamingToolExecutor.getRemainingResults()` and synthesizes tool results for issued-but-unfinished calls, preventing dangling commitments. In `compact.ts`, the compact abort controller is passed into the forked agent and `APIUserAbortError` is handled explicitly, preventing "compact cancelled by user Esc" from being counted as a successful summary.
 
-First in `query.ts`: during streaming user interrupt, runtime consumes `StreamingToolExecutor.getRemainingResults()` and synthesizes tool results for issued-but-unfinished tool calls, preventing dangling commitments.
-
-Second in `compact.ts`: source passes compact abort controller into forked agent and handles `APIUserAbortError`, preventing "compact canceled by user Esc" from being counted as successful summary.
-
-Together, these show interruption is not merely "user stopped reading." It is state transition requiring correct closure. Error recovery that handles exceptions but ignores interruption eventually leaves semantically half-broken execution traces.
+Interruption is not merely "user stopped reading"; it is a state transition requiring correct closure. Recovery that handles exceptions but ignores interruption leaves semantically half-broken execution traces.
 
 ## 6.8 Error handling protects narrative consistency of execution
 
-Taken together, Claude Code's recovery philosophy has one core but often overlooked goal: preserve narrative consistency of execution.
+Claude Code's recovery philosophy has one often-overlooked goal: preserve narrative consistency of execution — whether the system can still explain what it attempted, why it failed, which recovery path was used, and whether it is now continuing, stopping, or rerouting.
 
-Execution narrative means whether the system can still explain:
-
-- what it attempted
-- why it failed
-- which recovery path was used
-- whether it is now continuing, stopping, or rerouting
-
-Fields like `transition.reason`, `maxOutputTokensRecoveryCount`, `hasAttemptedReactiveCompact`, compact boundaries, and synthetic error messages in `query.ts` all exist to keep this narrative unbroken. They are anti-amnesia mechanisms for runtime.
-
-Without narrative consistency, systems may continue outputting text while internally decomposing:
-
-- today users see extra filler
-- tomorrow ops sees hook-retry and compact-retry loops with unclear causality
-- later teams cannot explain what the system actually went through
-
-So recovery fixes not only errors but system self-explainability. Once explainability breaks, engineering object degrades into opaque magic.
+Fields like `transition.reason`, `maxOutputTokensRecoveryCount`, `hasAttemptedReactiveCompact`, compact boundaries, and synthetic error messages in `query.ts` exist to keep this narrative unbroken — they are anti-amnesia mechanisms. Without narrative consistency, systems keep outputting text while internally decomposing: users see filler, ops sees hook-retry and compact-retry loops with unclear causality, and teams can no longer explain what the system actually went through. Recovery fixes not only errors but the system's self-explainability; once explainability breaks, the engineering object degrades into opaque magic.
 
 ## 6.9 The sixth principle extractable from source
 
@@ -137,13 +132,6 @@ Claude Code source supports this across key points:
 - `autoCompact.ts` tracks consecutive failures and enforces circuit breaking
 - `compact.ts` includes fallback for compaction's own prompt-too-long failure
 
-Portable principles from this:
-
-- Layer recovery paths; avoid one heavy hammer for all failures
-- Recovery logic itself must be loop-safe
-- Automated recovery needs counters and circuit breakers
-- After truncation, continuation is usually better than summary
-- Interruptions are semantic failure states requiring closure
-- Reliability is proven by whether the system can still explain itself after errors
+As portable principles: layer recovery paths rather than using one heavy hammer; recovery logic must be loop-safe; automated recovery needs counters and circuit breakers; after truncation, continuation beats summary; interruptions are semantic failure states requiring closure; reliability is proven by whether the system can still explain itself after errors.
 
 Next chapter turns to a harder class of problems: multi-agent and verification. When systems move from "one agent recovers itself" to "one agent delegates and another verifies," error and recovery stop being purely single-thread concerns and become organizational design.

@@ -2,11 +2,9 @@
 
 ## 5.1 As context grows, systems develop a low-level illusion
 
-Once people can keep stuffing content into context, they easily believe a simple myth: more information makes systems smarter. It sounds plausible. Knowing more should be better than knowing less. Unfortunately, agent systems are not libraries and models are not librarians. Context is not a warehouse where "stored" equals "owned." It is an expensive, inflation-prone, self-polluting budget.
+"More information makes systems smarter" is a dangerous myth. Agent systems are not libraries; context is not a warehouse where "stored" equals "owned." It is an expensive, inflation-prone, self-polluting budget. Claude Code source is unsentimental about this: what to load, what to truncate, what to preserve long-term, and what to summarize short-term are serious runtime governance decisions.
 
-Claude Code source is unsentimental about this. It does not design context as an infinite memory pool. It repeatedly reminds itself that what to load, what to truncate, what to preserve long-term, and what to summarize short-term are serious runtime governance decisions.
-
-So this chapter asks: how does Claude Code avoid being crushed by what it remembers? It may look close to "remember more," but engineering-wise these are different regimes. One is accumulation instinct; the other is governance discipline.
+So this chapter asks: how does Claude Code avoid being crushed by what it remembers? "Remember more" and "govern memory" look close but engineering-wise are different regimes.
 
 ## 5.2 The `CLAUDE.md` system: long-lived instructions cannot be mixed with ad hoc chat
 
@@ -82,6 +80,18 @@ Then `getAutoCompactThreshold()` subtracts another `AUTOCOMPACT_BUFFER_TOKENS = 
 
 The logic is simple: context governance must pre-reserve room for failure and recovery. Systems that reserve nothing may look frugal in normal cases but simply defer risk billing to later turns.
 
+### Budget thresholds
+
+| Name | Value | Purpose | Source |
+|---|---|---|---|
+| `MAX_ENTRYPOINT_LINES` | 200 | line cap for `MEMORY.md` index | `memdir/memdir.ts` |
+| `MAX_ENTRYPOINT_BYTES` | 25_000 | byte cap for the index file | `memdir/memdir.ts` |
+| `MAX_SECTION_LENGTH` | 2_000 | per-section cap in session memory | `SessionMemory/prompts.ts` |
+| `MAX_TOTAL_SESSION_MEMORY_TOKENS` | 12_000 | total budget for session memory | `SessionMemory/prompts.ts` |
+| `MAX_OUTPUT_TOKENS_FOR_SUMMARY` | 20_000 | output reserve for compact summary | `compact/autoCompact.ts` |
+| `AUTOCOMPACT_BUFFER_TOKENS` | 13_000 | autocompact early-warning buffer | `compact/autoCompact.ts` |
+| `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES` | 3 | circuit-breaker threshold | `compact/autoCompact.ts` |
+
 `AutoCompactTrackingState` is also revealing. It tracks not only `compacted`, but also `turnCounter`, `turnId`, and `consecutiveFailures`. So autocompact is a tracked runtime behavior that can fail and be rate-limited.
 
 Source even notes a hard lesson: large amounts of API calls were once wasted on repeated autocompact failure, therefore `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3` with circuit breaker after that. You may fail, but you may not fail infinitely without memory.
@@ -131,12 +141,6 @@ Claude Code source supports this on several layers:
 - `autoCompact.ts` reserves summary budget, buffers, and failure circuit breaker, treating window operation as risk-managed budgeting
 - `compact.ts` restores plans, files, skills, tool attachments, and hook state after summarization, showing compact aims to rebuild working semantics, not produce pretty summaries
 
-Portable engineering principles from this:
-
-- Layer long-term rules, persistent memory, and session continuity instead of mixing them
-- Keep index-like memory artifacts small or they drag down the entire system
-- Session summaries should serve continuation, not complete recollection
-- Compact is a primary path, not an emergency side path
-- Post-compact context must preserve runtime semantics, not merely language surface
+As portable engineering principles: layer long-term rules, persistent memory, and session continuity rather than mixing them; keep index-like artifacts small; session summaries serve continuation, not full recollection; compact is a primary path; post-compact context must preserve runtime semantics, not just language surface.
 
 Next chapter asks what happens when this governance system meets hard limits: prompt too long, max output tokens, hook dead loops, and competing recovery branches. That is where you can finally tell whether a system is "hoping nothing breaks" or "designed to keep operating after breakage."

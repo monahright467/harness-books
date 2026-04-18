@@ -120,13 +120,59 @@ system prompt 不该只是长，也该有分层和职责。
 
 ## A.9 最后一个清单
 
-如果嫌前面都太长，那至少记住这六条：
+嫌前面都太长，至少记住：先设计权限再设计能力、先回滚再自治、先验证再交付、先上下文预算再长期对话、先生命周期再多代理、先制度再指望团队熟练。做到这六条未必立刻优秀；做不到大概率只是暂时没出事。
 
-- 先设计权限，再设计能力
-- 先设计回滚，再设计自治
-- 先设计验证，再设计交付
-- 先设计上下文预算，再设计长期对话
-- 先设计生命周期，再设计多代理
-- 先设计制度，再指望团队熟练
+## A.10 实现种子 (pseudocode stubs)
 
-做到这六条，系统未必立刻优秀；做不到这六条，系统大概率只是暂时没出事。
+把前几章的几个骨架压成可直接抄写的起点。具体形态见对应章节，这里只保留最小脊柱。
+
+### A.10.1 queryLoop (骨架，引自第 3 章)
+
+```
+state = { messages, toolUseContext, autoCompactTracking, turnCount, transition, ... }
+while not done(state):
+    govern_input(state)                 // memory / snip / collapse / autocompact
+    events = stream_model(state)
+    for e in events:
+        if e.is(tool_use): schedule(e, state.toolUseContext)
+        if e.is(api_error): return surface(e)
+    if interrupted: drain_tools_with_synthetic_results(state); break
+    state = advance(state, recover_if_needed(state))
+assert state.turnCount monotonic ∧ every tool_use has tool_result
+```
+
+### A.10.2 permission decision (骨架，引自第 4 章)
+
+```
+decision = hasPermissionsToUseTool(tool, input, ctx)
+match decision:
+    allow: exec(tool, input)
+    deny:  reject(reason)
+    ask:   route_to(coordinator | worker | classifier | interactive)
+assert decision ∈ {allow, deny, ask}        # 三值不塌缩
+assert ask never auto-escalates to allow    # 不可越权升级
+```
+
+### A.10.3 forkAgent (骨架，引自第 7 章)
+
+```
+params = CacheSafeParams { systemPrompt, userContext, systemContext, toolUseContext, forkContextMessages }
+ctx    = createSubagentContext(parent)       // mutable state isolated by default
+hooks.fire(SubagentStart, { agent_id, agent_type })
+defer hooks.fire(SubagentStop, { agent_transcript_path })
+assert parent.abort ⇒ propagate(child.abort)
+```
+
+### A.10.4 recoverFromError (骨架，引自第 6 章)
+
+```
+on recoverable_error(e):
+    if e.is(prompt_too_long):
+        if stagedCollapse > 0: recoverFromOverflow()
+        elif not hasAttemptedReactiveCompact: tryReactiveCompact()
+        else: surface(e); skip_stop_hooks()
+    if e.is(max_output_tokens):
+        if cap < MAX: raise(maxOutputTokensOverride); retry()
+        else: append(meta_continue_msg); retry()
+assert consecutiveFailures < MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES
+```

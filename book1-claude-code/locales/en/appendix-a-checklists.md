@@ -120,13 +120,59 @@ If answers frequently reduce to "we can add that later," runtime is likely not t
 
 ## A.9 Final short checklist
 
-If everything above feels too long, keep these six:
+If everything above feels too long, keep these six: design permission before capability; rollback before autonomy; verification before delivery; context budgets before long dialogue; lifecycle before multi-agent; institutions before expecting team proficiency. Meeting them does not guarantee excellence; missing them usually means the system has just not failed yet.
 
-- design permission before capability
-- design rollback before autonomy
-- design verification before delivery
-- design context budgets before long dialogue
-- design lifecycle before multi-agent
-- design institutions before expecting team proficiency
+## A.10 Implementation seeds (pseudocode stubs)
 
-Meeting these six does not guarantee excellence. Missing them usually means the system has just not failed yet.
+The skeletons from earlier chapters collapsed into reusable starting points. Full forms live in their chapters; this keeps only the minimal spine.
+
+### A.10.1 queryLoop (skeleton, from Chapter 3)
+
+```
+state = { messages, toolUseContext, autoCompactTracking, turnCount, transition, ... }
+while not done(state):
+    govern_input(state)                 // memory / snip / collapse / autocompact
+    events = stream_model(state)
+    for e in events:
+        if e.is(tool_use): schedule(e, state.toolUseContext)
+        if e.is(api_error): return surface(e)
+    if interrupted: drain_tools_with_synthetic_results(state); break
+    state = advance(state, recover_if_needed(state))
+assert state.turnCount monotonic ∧ every tool_use has tool_result
+```
+
+### A.10.2 permission decision (skeleton, from Chapter 4)
+
+```
+decision = hasPermissionsToUseTool(tool, input, ctx)
+match decision:
+    allow: exec(tool, input)
+    deny:  reject(reason)
+    ask:   route_to(coordinator | worker | classifier | interactive)
+assert decision ∈ {allow, deny, ask}        # three-valued, never collapses
+assert ask never auto-escalates to allow    # no unauthorized escalation
+```
+
+### A.10.3 forkAgent (skeleton, from Chapter 7)
+
+```
+params = CacheSafeParams { systemPrompt, userContext, systemContext, toolUseContext, forkContextMessages }
+ctx    = createSubagentContext(parent)       // mutable state isolated by default
+hooks.fire(SubagentStart, { agent_id, agent_type })
+defer hooks.fire(SubagentStop, { agent_transcript_path })
+assert parent.abort ⇒ propagate(child.abort)
+```
+
+### A.10.4 recoverFromError (skeleton, from Chapter 6)
+
+```
+on recoverable_error(e):
+    if e.is(prompt_too_long):
+        if stagedCollapse > 0: recoverFromOverflow()
+        elif not hasAttemptedReactiveCompact: tryReactiveCompact()
+        else: surface(e); skip_stop_hooks()
+    if e.is(max_output_tokens):
+        if cap < MAX: raise(maxOutputTokensOverride); retry()
+        else: append(meta_continue_msg); retry()
+assert consecutiveFailures < MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES
+```

@@ -2,38 +2,23 @@
 
 ## 4.1 Once models call tools, the nature of risk changes
 
-A text-only model mostly increases communication cost when wrong. If it explains badly, we ask again. Once it starts calling tools, risk changes in kind. Tools are not opinions. Tools are actions. Actions leave effects, and effects touch the real world.
+A text-only model mostly costs communication time when wrong. Once it starts calling tools, risk changes in kind: tools are not opinions but actions, and actions touch the real world. A wrong explanation stays at understanding level; a wrong command deletes files, kills processes, mangles Git history. Capability growth comes with consequence growth.
 
-Shell makes this obvious. If a model writes a wrong explanation, impact usually stays at understanding level. If it runs the wrong command, files get deleted, processes are terminated, and Git history becomes hard to repair. Capability increases usually come with consequence increase.
-
-So the most important question in tool systems is: who constrains these tools? Claude Code answers by turning tools into managed execution interfaces, preventing models from touching the world directly.
+So the central question is simple: who constrains these tools? Claude Code's answer is to turn tools into managed execution interfaces, not let models reach out directly.
 
 ## 4.2 Tool orchestration is part of behavioral constitution
 
-In `runTools()` at `src/services/tools/toolOrchestration.ts:19`, Claude Code first does something representative: it does not directly execute a list of `tool_use` calls. It batches them by concurrency safety.
+`runTools()` at `src/services/tools/toolOrchestration.ts:19` does something representative: it does not directly execute the `tool_use` list — it batches by concurrency safety. `partitionToolCalls()` at `:91` reads each tool's `inputSchema` and calls `isConcurrencySafe()`; safe calls go into parallel batches, unsafe calls split into serial units.
 
-In `partitionToolCalls()` at `src/services/tools/toolOrchestration.ts:91`, the system reads each tool's `inputSchema`, then calls `isConcurrencySafe()` to decide whether execution can be parallel. Safe calls go into parallel batches; unsafe calls are split into serial units.
+This looks like performance tuning but is really consistency design. Once concurrency is allowed, an old question returns: who decides context evolution, and in what order? In parallel paths (`:31`–`:63`), Claude Code does not let the fastest tool mutate context first; it buffers `contextModifier` callbacks and replays them in original block order. Execution is parallel while semantic context evolution stays deterministic.
 
-This may look like performance tuning, but it is really consistency design. Once a tool system allows concurrency, it must answer an old question: who decides context evolution, and in what order? In parallel paths (`toolOrchestration.ts:31` to `:63`), Claude Code does not let the fastest tool mutate context first. It buffers `contextModifier` callbacks and replays them in original block order. Execution can be parallel while semantic context evolution remains deterministic.
-
-This is classic engineering conservatism: concurrency may improve throughput, but must not break causality. If tools only run faster without preserving context consistency, they inject new randomness into the system.
-
-Mature agent systems do not idolize parallelism. They treat it as an exception that must prove safety, not default freedom. Claude Code clearly optimizes for bounded risk spread.
+Classic engineering conservatism: concurrency may improve throughput but must not break causality. Mature agent systems do not idolize parallelism — they treat it as an exception that must prove safety, not a default freedom.
 
 ## 4.3 A lot happens before a tool actually runs
 
-Many people assume once `tool_use` appears, execution naturally follows. Claude Code shows robust systems do not work that way.
+Many people assume that once `tool_use` appears, execution naturally follows. Robust systems do not work that way. After `src/services/tools/toolExecution.ts:30`, `runToolUse()` is already wrapped with permission logic, hooks, telemetry, and synthetic error materialization — pre-checks, in-flight events, post-execution correction, and failure compensation.
 
-After `src/services/tools/toolExecution.ts:30`, execution in `runToolUse()` is already wrapped with permission logic, hooks, telemetry, and synthetic error materialization. Even without reading every branch, the structure is clear: tool execution is a full lifecycle with:
-
-- pre-checks
-- in-flight events
-- post-execution correction
-- failure compensation
-
-This shows tools here are not ordinary internal library functions. Internal functions assume stable callers who own consequence. Tool interfaces sit between models and external world, so runtime cannot assume stable caller judgment. That is why so many wrappers exist around execution: caller is the most unstable variable.
-
-Design-wise this is crucial: tools should not be modeled as "extensions of model capability." They should be modeled as external capabilities whose risk must be managed by runtime. Once you accept that, permission, hooks, interrupts, and synthetic results look like basics, not burdens.
+Tools here are not ordinary internal library functions. Internal functions assume stable callers who own consequence; tool interfaces sit between models and the external world, so runtime cannot assume stable caller judgment. That is why so many wrappers exist: caller is the most unstable variable. Tools should not be modeled as "extensions of model capability" but as external capabilities whose risk must be runtime-managed. Once you accept that, permission, hooks, interrupts, and synthetic results become basics, not burdens.
 
 ## 4.4 Permission comes before capability
 
@@ -50,6 +35,21 @@ After `useCanUseTool.tsx:64`, branches continue:
 This structurally rejects a common dangerous idea: if the model understood user intent, it has authority to execute. It does not. Intent understanding is not authorization, and certainly not persistent authorization. Systems must split "can do" from "may do."
 
 From this angle, permission clarifies agent role: model can propose actions, but runtime, rules, and user decide release. Capability and authority are deliberately separated.
+
+### Skeleton: the permission chain
+
+```
+// skeleton: useCanUseTool()  (src/hooks/useCanUseTool.tsx:27)
+decision = hasPermissionsToUseTool(tool, input, ctx)
+match decision:
+    case allow:  return exec(tool, input)
+    case deny:   return reject(reason)
+    case ask:    return route_to(coordinator | swarm_worker | classifier | interactive_prompt)
+
+assert decision ∈ {allow, deny, ask}                    # three-valued, no boolean shortcuts
+assert ask never auto-escalates to allow                # no unauthorized escalation
+assert deny is sticky for this tool_use_id              # no silent retry to allow
+```
 
 ![Claude Code Permission Decision Layers](diagrams/diag-ch04-01-permission-decision-layers.png)
 
@@ -85,21 +85,26 @@ This design matters because Claude Code does not treat interruption as "a specia
 
 That is a core Harness Engineering trait: design start and stop both. Execution systems without stop semantics eventually depend on user-side hard interruption to finish design.
 
+### Concurrency & interrupt failure matrix
+
+| Event order | Pre-state | Trigger | Next |
+|---|---|---|---|
+| one tool fails in parallel batch | siblings still executing | sibling error | keep others; replay `contextModifier` in block order |
+| user interjects + `interruptBehavior=cancel` | tool not yet done | user interrupt | cancel, emit `user interrupted` synthetic result |
+| user interjects + `interruptBehavior=block` | tool not yet done | user interrupt | finish tool, block new message until done |
+| streaming fallback | batch queued/executing | fallback | discard batch, yield fallback synthetic results in order |
+| abort with pending `tool_use` | any | abort signal | synthesize `tool_result`, close the ledger |
+| Bash compound command exceeds subcommand cap | classifier rejects | safety check | `deny`; do not route to `ask` |
+
 ![Claude Code Tool Execution Lifecycle](diagrams/diag-ch04-02-tool-execution-lifecycle.png)
 
 ## 4.7 Why Bash is always more suspect than other tools
 
-In Claude Code's tool world, Bash is not a normal tool. It is a risk amplifier. It is too general. The more general an interface, the harder it is to constrain by domain logic. A file-read tool will not casually kill processes. A grep tool will not secretly push commits. Bash can do almost everything.
+In Claude Code's tool world, Bash is a risk amplifier, not a normal tool. It is too general — a file-read tool will not casually kill processes, a grep tool will not secretly push commits, but Bash can do almost everything. Claude Code's distrust is explicit.
 
-Claude Code's distrust is explicit.
+First layer is prompt guidance in `src/tools/BashTool/prompt.ts:42` and below: detailed rules for git, PRs, dangerous commands, hooks, force push, and interactive flags — disciplined verbosity where consequences are large. Second layer is permission and safety classification. `src/tools/BashTool/bashPermissions.ts:1` handles shell semantics, command prefixes, redirection, wrappers, safe env vars, classifier routing, and rule matching; after `:95` a subcommand-count cap prevents compound commands from escaping checks.
 
-First layer is prompt guidance in `src/tools/BashTool/prompt.ts:42` and below. It sets detailed rules for git, PRs, dangerous commands, hooks, force push, and interactive flags. It looks verbose, but it is disciplined verbosity: where consequences are large, rules are explicit.
-
-Second layer is permission and safety classification. `src/tools/BashTool/bashPermissions.ts:1` onward is extensive handling of shell semantics, command prefixes, redirection, wrappers, safe env vars, classifier routing, and rule matching. After `bashPermissions.ts:95`, there is even an explicit subcommand-count limit to prevent complex command bundles from escaping checks.
-
-This shows Bash is treated as a dangerous channel requiring special governance, not a generic command interface. Engineering is acknowledging a simple fact: Bash is powerful, therefore exceptional.
-
-This judgment is worth reusing: high-risk capability should not receive generic capability treatment. The more general capability is, the more special governance it needs. Treating Bash as ordinary tool is usually design laziness.
+Bash is a dangerous channel requiring special governance, not a generic command interface. A reusable judgment: high-risk capability deserves special governance, not generic capability treatment; treating Bash as ordinary is usually design laziness.
 
 ## 4.8 Tool systems protect users and protect runtime itself
 
@@ -127,12 +132,6 @@ Claude Code source supports this jointly:
 - `StreamingToolExecutor.ts` defines interruption, fallback, and sibling-failure semantics, making stopping as important as starting
 - `BashTool/prompt.ts` and `bashPermissions.ts` apply high-pressure special governance to Bash, proving high-risk capability must carry denser constraints
 
-If you turn this into portable engineering principles:
-
-- Let models propose actions, but do not grant authority automatically
-- Preserve causality order in tool scheduling, even under parallel execution
-- Give interruption first-class semantics; do not leave it to generic exception handling
-- Treat high-risk tools as explicit exceptions, not generic channels
-- A tool system protects both users and runtime consistency
+As portable engineering principles: model proposes, runtime authorizes; preserve causal order even under parallelism; interrupt is first-class, not a generic exception; treat Bash-class tools as explicit exceptions; a tool system protects both users and runtime.
 
 Next chapter addresses another common illusion in this system: "more context is always better." Claude Code implementation says the opposite. Experienced systems treat context as a resource, not a warehouse. We now turn to how memory, `CLAUDE.md`, and compact form one context-governance regime.

@@ -2,11 +2,9 @@
 
 ## 1.1 问题在于让模型别乱来
 
-这些年，人们很喜欢谈智能体。这个词常常带着轻快的预期，仿佛只要模型会写几段代码、会调几个工具，就可以像见习工程师一样在终端里独立工作。可终端和文件系统都带有明确后果。一个会说话的概率分布，一旦能接触 shell、Git、网络和本地文件，问题就从”回答得不够好”变成”执行造成实际破坏”。
+一个会说话的概率分布，一旦能接触 shell、Git、网络和本地文件，问题就从“回答得不够好”变成“执行造成实际破坏”。所谓 Harness Engineering，就是把这样一个不稳定的核心部件约束成可管理系统的那一套制度化控制平面。它要处理的现实只有一条：模型并不天然值得信任。
 
-所以问题的重点，一直是怎样把它约束成一个可管理的系统。所谓 Harness Engineering，讨论的就是这件事。Harness 是一整套制度化的控制平面，用来处理一个很现实的问题：模型并不天然值得信任。
-
-这个判断未必轻松，但通常有用。一个代理系统要进入真实工程环境，首先要承认自己的核心部件是不稳定的。忽视这一点，问题最后通常会在日志和事故记录里出现。
+这个判断未必轻松，但通常有用。忽视它，问题最后多半会在日志和事故记录里出现。
 
 ## 1.2 Claude Code 的第一层 Harness：受约束的会话系统
 
@@ -23,6 +21,16 @@
 更重要的是，这个 prompt 采用分段拼装方式。在 `src/constants/prompts.ts:444` 的 `getSystemPrompt()` 里，静态部分和动态部分被明确拆开，memory、language、output style、MCP instructions、scratchpad 等内容按段注入。到了 `src/utils/systemPrompt.ts:28`，系统又把默认 prompt、自定义 prompt、agent prompt 和 append prompt 组织成一套优先级规则。
 
 这说明了一个朴素的工程事实：一个真正可用的代理系统，不能依赖一段“万能提示词”解决所有问题。它必须把控制拆成层，把层次拆成职责。否则，新增提醒和禁令很快就会互相冲突，系统行为也会变得难以预测。
+
+### 不变式：控制平面的三条硬约束 (invariants)
+
+```
+assert prompt.layers ⊇ {default, project, custom, agent, append}    # 身份 ≠ 运行时
+assert ∀ tool_call t: scheduler.decides_concurrency(t) before exec(t) # 工具受调度
+assert on recoverable_error: route ∈ {recover, terminate_clean}      # 错误进主路径
+```
+
+这三条一旦任意一条被越过，后面几章里的 query loop、工具、上下文和恢复机制都会立刻显得可疑。
 
 ## 1.3 第二层 Harness：代理依赖持续循环
 

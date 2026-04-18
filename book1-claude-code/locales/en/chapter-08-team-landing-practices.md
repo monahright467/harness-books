@@ -2,13 +2,11 @@
 
 ## 8.1 Expert success does not automatically turn into safe team reuse
 
-Many AI coding tools look impressive in expert hands. Skilled users know when to patch context, when to watch the model closely, and when one sentence such as "do not touch this directory" can hold behavior in place for a while. That easily creates an illusion: if power users can drive it smoothly, team rollout is just a matter of writing more best-practice notes.
+Many AI coding tools look impressive in expert hands: skilled users know when to patch context, when to watch the model closely, and when a single "do not touch this directory" holds behavior in place. That easily creates an illusion — if power users drive it smoothly, team rollout is just more best-practice notes.
 
-The problem is that personal technique works precisely because it depends on continuous human supervision, background knowledge, and situational judgment. Once a team adopts the tool, assumptions change. You can no longer assume everyone knows which commands are dangerous, which memories are stale, which skills fork subagents, which steps may skip approval, and which steps absolutely must not.
+The problem is that personal technique works precisely because it depends on continuous supervision, background knowledge, and situational judgment. Once a team adopts the tool, assumptions change: you can no longer assume everyone knows which commands are dangerous, which memories are stale, which skills fork subagents, which steps may skip approval, and which must not. The real team problem is turning order that lived in expert heads into a workflow ordinary contributors can repeat without heroics.
 
-So the real team problem is turning order that used to live inside expert heads into a workflow that ordinary contributors can repeat without relying on heroics.
-
-That is why Claude Code source is useful. It makes expert behavior explicit: instructions have loading layers, permissions have decision points, subagents have isolation boundaries, and the runtime exposes lifecycle hooks. Those implementation details remind us that adopting a coding agent is both introducing a smarter autocomplete tool and rearranging who gets to do what inside which boundary.
+Claude Code source is useful here because it makes expert behavior explicit: instructions have loading layers, permissions have decision points, subagents have isolation boundaries, runtime exposes lifecycle hooks. Adopting a coding agent is both introducing a smarter autocomplete and rearranging who may do what inside which boundary.
 
 ## 8.2 The first team step is to make minimum boundaries clear
 
@@ -36,6 +34,21 @@ So the more realistic rollout order is rarely "build many skills first, then add
 
 Teams often fail because they skipped this step, even when the agent itself is quite capable.
 
+### Staged rollout checklist (builder checklist)
+
+```
+- [ ] Week 1: layered CLAUDE.md live — team / personal / project all verifiable
+- [ ] Week 1: shared verification defined (lint / type / test commands in CLAUDE.md)
+- [ ] Week 1: forbidden zones encoded as repo-level hard constraints (dirs, dangerous commands)
+- [ ] Week 2: approvals tiered by consequence (allow / deny / ask), Bash has its own rule
+- [ ] Week 2: first ≤3 skills shipped, each with precondition / postcondition / verifiable artifact
+- [ ] Week 2: explicit policy for "done with known issues"
+- [ ] Week 3: stop / post-tool-use hooks landed, capturing transcript + task output
+- [ ] Week 3: monthly stale-memory maintenance in effect
+- [ ] Week 3: baseline replay (Git diff / PR / CI) gap-free before pursuing advanced audit
+Gate: a newcomer can use it without an expert standing by — the workflow is mature.
+```
+
 ## 8.3 `CLAUDE.md` matters because it stays stable, layered, and low-dispute
 
 Earlier chapters covered layered loading in `claudemd.ts`. That still matters during team adoption, but it should be interpreted with some restraint.
@@ -47,15 +60,9 @@ Team-level `CLAUDE.md` is best used for stable rules. It does not need to carry 
 - collaboration discipline, such as do not overwrite user-unrequested changes and do not reset dirty worktrees without explicit instruction
 - output discipline, such as findings-first review reporting
 
-What does not fit well:
+What does not fit well: rapidly changing temporary processes, instructions relevant only to a narrow task subset, and details better expressed as commands, skills, or scripts. Once `CLAUDE.md` becomes encyclopedic, it loses stability and credibility at once: team members stop knowing whether a rule is current or leftover from months ago, and the system learns to treat obsolete norms as active law.
 
-- rapidly changing temporary processes
-- instructions that matter only for a narrow task subset
-- details that are better expressed as commands, skills, or scripts
-
-The reason is simple. Once `CLAUDE.md` becomes encyclopedic, it loses the two properties that matter most: stability and credibility. Team members stop knowing whether a rule is current or leftover discussion from months ago. The system, in turn, learns a bad habit: treating obsolete norms as active law.
-
-So the ideal team `CLAUDE.md` is not simply "large." It should be stable enough that people rarely need to debate it. It should function like foundation, not bulletin board.
+So the ideal team `CLAUDE.md` is not simply "large." It should be stable enough that people rarely need to debate it. It functions like foundation, not bulletin board.
 
 ## 8.4 Verification definition usually matters earlier than skill count
 
@@ -83,51 +90,35 @@ So the more durable rollout order is usually:
 
 ## 8.5 Skills are better understood as workflow modules than as institutions themselves
 
-When teams first design skills, they often drift into one of two bad models. Either a skill is treated as nothing more than a long prompt template, or it is over-elevated into something like a full institutional object.
+When teams first design skills, they drift into two bad models: either a skill is "just a long prompt template," or it is over-elevated into an institutional object. Neither fits.
 
-Neither model is quite right.
+Claude Code clearly treats skills as more than prompt snippets: if intent matches a skill, the Skill tool must be called; already-loaded skills must not be reloaded; a skill can run in a forked subagent context with its own boundary and tool set. So a skill is at least an executable workflow module. But for team practice, the safer interpretation stays narrower — skills should first solve "how to reuse this recurring workflow reliably," not encode the whole organization into agent form.
 
-Claude Code clearly does not treat skills as casual prompt snippets. If intent matches a skill, the Skill tool must actually be called. Already-loaded skills should not be reloaded. And in some cases, a skill runs in a forked subagent context with its own context boundary and tool set.
-
-That means a skill is at least an executable workflow module, not just text.
-
-But for team practice, the safer interpretation is still narrower: skills should first solve "how do we reuse this recurring workflow reliably." Encoding the whole organization into agent form is usually a much later concern.
-
-Typical cases where teams actually benefit from skills are more concrete:
-
-- a task class always needs the same checks
-- a problem type always requires the same context bundle
-- a workflow should always produce the same artifact set
-- a subtask is consistently better delegated to a subagent
-
-In that setting, a skill packages knowledge, sequence, boundaries, and outputs into something repeatable.
-
-So the most useful questions during skill design are:
-
-- what task class does this serve
-- what tools may it use by default
-- should it execute directly or be forked to a subagent
-- what result should exist afterward, and how is that result verified
-
-If those questions are unanswered, skills quickly decay into nicely named but semantically vague slogans.
+The questions worth answering during skill design: what task class does it serve, what tools may it use by default, should it execute directly or fork to a subagent, what verifiable result must exist afterward. Unanswered, skills decay into well-named but semantically vague slogans.
 
 ## 8.6 Approval works best when it is tiered by risk
 
-Claude Code keeps returning to one distinction: being able to do something is different from being authorized to do it.
+Claude Code keeps returning to one distinction: being able to do something differs from being authorized to do it. Solo use underestimates this because individuals grant themselves ad hoc authority; teams cannot. Once an agent writes files, mutates Git state, touches networks or external systems, each step is also a movement of responsibility.
 
-That is easy to underestimate in solo use because individuals can grant themselves ad hoc authority. Teams cannot. Once an agent starts writing files, mutating Git state, accessing networks, or touching external systems, each step is not only a technical action. It is also a movement of responsibility.
+Teams often make the opposite mistake: design an elaborate approval taxonomy immediately, and the rollout cost becomes unsustainable. More realistic is to tier by risk, not tool name — reads / listings / pure analysis are lower risk; workspace mutation and write operations are materially higher; Git push, external network, and sensitive environments are higher again. What teams really need to control is irreversibility and environment sensitivity, not the button label. Once those boundaries are clear, automation is less likely to amplify damage in the wrong places.
 
-But teams often make a second mistake here: they try to design a very elaborate approval taxonomy immediately, and the rollout cost becomes too high to sustain.
+### Approval rule template
 
-A more realistic approach is to tier approvals by risk rather than by tool name. For example:
-
-- file reads, listing, and pure analysis are often lower risk
-- workspace mutation, config edits, and write operations are materially higher risk
-- Git push, external network access, and sensitive environments are higher again
-
-This is closer to the consequence itself. What teams really need to control is irreversibility and environment sensitivity, not the button label.
-
-So the value of approval is mainly in clarifying risk boundaries. Once those boundaries are clear, automation is less likely to amplify damage in the wrong places.
+```
+// template: approval rule  (mirrors useCanUseTool's three-valued decision)
+rule {
+    name:           <short>
+    match:          { tool, args_pattern, cwd_scope }
+    risk_tier:      read | write | irreversible      // tier by consequence, not tool name
+    decision:       allow | deny | ask
+    ask_to:         coordinator | reviewer | operator
+    ttl:            session | turn | persistent
+    audit:          transcript + PR comment + CI log
+}
+assert every irreversible action ⇒ decision ∈ {deny, ask}    # irreversible must be gated
+assert Bash compound commands > subcommand_cap ⇒ deny        # bundled commands not released
+assert ask never auto-escalates to allow                     # three-valued never collapses
+```
 
 ## 8.7 Hooks are powerful, but usually belong later in the rollout
 
@@ -142,48 +133,17 @@ Examples include:
 
 All of that is useful. The more important judgment is that useful does not necessarily mean first.
 
-For most ordinary engineering teams, the first move is usually something simpler:
+For most ordinary engineering teams, the first move is usually simpler: repository-level instruction files, code-review rules, CI and test expectations, and a small set of recurring commands or skills. Hooks start to pay off when scale, risk, or compliance pressure rises further; before that, they often introduce more moving parts than the team is ready to own — unmaintained scripts, unclear trigger timing, and debugging costs that exceed the manual step they replaced.
 
-- repository-level instruction files
-- code-review rules
-- CI and test expectations
-- a small number of recurring commands or skills
-
-Hooks start to pay off when scale, risk, or compliance pressure rises further. Before that, they often introduce more moving parts than the team is ready to own: scripts without maintenance owners, trigger timing that no one fully understands, and debugging costs that exceed the cost of the manual step they replaced.
-
-So the more mature conclusion is that hooks are an advanced automation interface. They are best for timing-bound actions and usually make more sense after baseline governance is already stable.
+So the more mature conclusion is that hooks are an advanced automation interface. They fit timing-bound actions and usually belong after baseline governance is already stable.
 
 ## 8.8 Replayability matters, but teams should separate baseline traces from advanced audit trails
 
-The easiest thing to overstate in this chapter is observability and auditability.
+Observability and auditability are the easiest things to overstate in this chapter. Of course teams want to know why something happened, where drift started, and who authorized the consequential step. Claude Code's logs, telemetry, task outputs, transcript paths, hook events, and agent notifications do create stronger replayability.
 
-Of course teams want to know why something happened, where drift started, and who authorized a consequential step. That part is real. Claude Code's implementation does create stronger replayability through logs, telemetry, task outputs, transcript paths, hook events, and agent notifications.
+But two layers must be separated. The baseline layer — Git diffs and commit history, PR comments and reviewer decisions, CI and test logs, issue trackers and acceptance notes — most teams already have, and it is usually enough for day-to-day reconstruction. The advanced layer — transcript paths, tool-call records, hook events, compact summaries, subagent usage and state transitions — pays off when scale or compliance justifies it. The key is to make layer one gap-free before investing in layer two; many teams lack a clean review or verification standard, and chasing full agent auditability too early turns governance into an expensive display.
 
-But in practice, teams need to separate two layers.
-
-The first is the baseline trace layer that most teams already have and that is often sufficient for day-to-day reconstruction:
-
-- Git diffs and commit history
-- PR comments and reviewer decisions
-- CI results and test logs
-- issue trackers, task tickets, and acceptance notes
-
-The second is the more advanced agent-process layer:
-
-- transcript paths
-- tool-call records
-- hook events
-- compact summaries
-- subagent usage and state transitions
-
-For most teams, the key is to make sure layer one has no serious gaps before investing heavily in layer two. Many teams still lack a clean review standard and a clean verification standard. If they chase full agent auditability too early, governance turns into an expensive display object.
-
-So the better framing is:
-
-- baseline replayability is a requirement for team adoption
-- advanced agent audit trails are an enhancement for high-risk, high-scale, or compliance-heavy teams
-
-That distinction helps prevent the governance needs of platform teams from being miswritten as the universal starting point for everyone else.
+So baseline replayability is a requirement for team adoption; advanced audit trails are an enhancement for high-risk, high-scale, or compliance-heavy teams. That distinction prevents platform-team governance from being miswritten as everyone's starting point.
 
 ## 8.9 The eighth principle we can extract from source
 
@@ -199,12 +159,6 @@ What Claude Code source actually suggests, in portable form, is closer to this:
 - hooks are powerful, but they belong after baseline governance is already stable
 - replayability should be built in layers: baseline traceability first, advanced auditability when the context justifies it
 
-If we translate that into team-operable principles, they come out looking more like this:
-
-- define acceptable usage scope before large-scale rollout
-- standardize verification definitions before increasing skill count
-- use review, CI, and a small set of stable instruction files to set the floor before adding hooks and orchestration
-- require every automation path to be explainable, but do not demand full heavy auditability from day one
-- optimize not for maximum institutional weight, but for clearer boundaries and a more bearable system
+Translated into team-operable principles: define acceptable usage scope before large-scale rollout; standardize verification definitions before increasing skill count; use review, CI, and a small set of stable instruction files to set the floor before adding hooks and orchestration; require every automation path to be explainable without demanding full heavy auditability from day one; optimize not for maximum institutional weight but for clearer boundaries and a more bearable system.
 
 The next chapter closes the book. Across the previous chapters, one judgment keeps returning: the model is the least stable component, so what we really design is how to keep the surrounding system bearable, verifiable, and correctable when the model is not reliable.

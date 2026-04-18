@@ -2,11 +2,9 @@
 
 ## 2.1 Treating prompt as persona is a common misunderstanding
 
-When many people hear "system prompt," they think of familiar rhetoric first: who you are, what you are good at, whether you should be warm, professional, concise, and ideally personality-stable. For chat-only systems, this can be enough. For an agent system that reads files, calls tools, touches shell, handles permissions, and executes across turns, it is clearly insufficient.
+When people hear "system prompt," they first think of familiar rhetoric: who you are, what you are good at, ideally with a stable personality. That framing is enough for chat-only systems and clearly insufficient for an agent that reads files, calls tools, touches shell, handles permissions, and executes across turns. Persona answers "what it looks like"; a control plane answers "what it can do, when, what happens on failure, who owns fallback." They are different layers.
 
-The reason is simple. Persona language answers "what it looks like." A control plane answers "what it can do, when it can do it, what happens when it fails, and who owns fallback." These are different layers. A system can have a pleasant persona while lacking execution discipline. When such a system fails, it often sounds sincere because it apologizes well. Apology is not runtime design.
-
-Claude Code implementation makes this explicit. Its system prompt is a layered assembly of behavioral blocks. In other words, prompt here is closer to a runtime protocol than to a character biography.
+Claude Code implementation shows this directly: its system prompt is a layered assembly of behavioral blocks — closer to a runtime protocol than to a character biography.
 
 ## 2.2 In source, Claude Code prompt is layered from the beginning
 
@@ -44,18 +42,24 @@ You can see this in `buildEffectiveSystemPrompt()` at `src/utils/systemPrompt.ts
 
 Then `appendSystemPrompt` is uniformly appended.
 
-This design says a lot. Claude Code does not believe one default prompt solves all contexts forever. It admits multiple operating contexts:
+The proactive-mode handling is even more direct. After `src/utils/systemPrompt.ts:99`, when agent prompt and proactive mode co-exist, agent prompt no longer replaces default prompt; it is appended after. A general constitution can be extended by a job description, but must not be wiped out by it.
 
-- Coordinator mode needs dedicated behavior rules
-- Agent mode needs role-specific duties
-- Users can override or append prompt via CLI
-- Default prompt is only the baseline when no higher-priority source applies
+### Skeleton: the prompt-assembly precedence chain
 
-In plain terms, mature systems do not worship one canonical prompt string. They treat prompt as hierarchical configuration where different responsibilities activate in different contexts.
+```
+// skeleton: buildEffectiveSystemPrompt()  (src/utils/systemPrompt.ts:28)
+sources = [override, coordinator, agent, custom, default]
+base = first_present(sources)           // higher precedence replaces default wholesale
+if proactive_mode and agent:
+    base = default + agent              // special case: layer, not replace
+return base + appendSystemPrompt        // append is always last
 
-One detail is especially notable. After `src/utils/systemPrompt.ts:99`, proactive mode is handled specially: when both agent prompt and proactive mode exist, agent prompt no longer replaces default prompt; it is appended after default prompt. This is highly revealing. It means the system knows baseline constraints cannot always be dropped. New agent behavior should layer on top of default discipline, not replace it wholesale.
+assert exists unique base in sources                # baseline must be unique
+assert precedence(override) > precedence(default)   # order is hardcoded, not "last write wins"
+assert appendSystemPrompt never replaces base       # append can only append
+```
 
-Think of it as a general constitution plus role-specific job descriptions. Job descriptions can extend duties, but should not wipe out foundational rules.
+Break any one of these invariants and prompt degrades into a graffiti board where whoever writes last is in charge.
 
 ## 2.4 Prompt is not static copy; it is connected to memory systems
 

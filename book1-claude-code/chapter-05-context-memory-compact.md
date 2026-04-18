@@ -2,11 +2,9 @@
 
 ## 5.1 上下文一多，系统就容易产生一种低级幻觉
 
-人一旦可以往上下文里不停塞东西，就很容易相信一个朴素的神话：信息越多，系统越聪明。这个神话听起来甚至有点合情合理。毕竟知道得多，总比知道得少强。可惜代理系统不是图书馆，模型也不是藏书管理员。上下文不是一个“存进去就算拥有”的仓库，它首先是一笔昂贵、易膨胀、还会自我污染的预算。
+“信息越多，系统越聪明”是一个危险的神话。代理系统不是图书馆，上下文不是“存进去就算拥有”的仓库，它首先是一笔昂贵、易膨胀、会自我污染的预算。Claude Code 在这件事上很不浪漫：该加载什么、该截断什么、什么东西要长期保留、什么东西只能短期摘要，全部是运行时要严肃治理的事。
 
-Claude Code 的源码在这件事上很不浪漫。它并没有把上下文设计成一个可以无限堆叠的记忆池，反而在很多地方反复提醒自己：该加载什么、该截断什么、什么东西要长期保留、什么东西只能短期摘要，都是运行时必须严肃治理的事。
-
-所以这一章要讨论的是：Claude Code 怎样防止自己被记住的东西拖死。这件事和“记住更多”看起来相近，工程上却是两种制度。前者偏向收藏癖，后者才接近治理术。
+这一章要讨论的是：Claude Code 怎样防止自己被记住的东西拖死。“记住更多”和“治理记忆”看起来相近，工程上是两种制度。
 
 ## 5.2 `CLAUDE.md` 体系说明，长期指令不能和临场对话混在一起
 
@@ -82,6 +80,18 @@ Claude Code 在 `src/services/SessionMemory/prompts.ts` 里专门给这件事建
 
 这套数字背后有个很朴素的道理：上下文治理需要提前为失败和恢复留出余地。不留余地的系统，平时看着像节俭，出事时才暴露真相——不过是把风险账单留给了下一轮。
 
+### 预算阈值表 (thresholds)
+
+| 名称 | 值 | 作用 | 源引用 |
+|---|---|---|---|
+| `MAX_ENTRYPOINT_LINES` | 200 | `MEMORY.md` 入口文件行数上限 | `memdir/memdir.ts` |
+| `MAX_ENTRYPOINT_BYTES` | 25_000 | 入口文件字节上限 | `memdir/memdir.ts` |
+| `MAX_SECTION_LENGTH` | 2_000 | session memory 单节上限 | `SessionMemory/prompts.ts` |
+| `MAX_TOTAL_SESSION_MEMORY_TOKENS` | 12_000 | session memory 总预算 | `SessionMemory/prompts.ts` |
+| `MAX_OUTPUT_TOKENS_FOR_SUMMARY` | 20_000 | compact 预留输出空间 | `compact/autoCompact.ts` |
+| `AUTOCOMPACT_BUFFER_TOKENS` | 13_000 | autocompact 警戒缓冲 | `compact/autoCompact.ts` |
+| `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES` | 3 | 连续失败熔断阈值 | `compact/autoCompact.ts` |
+
 更有意思的是 `AutoCompactTrackingState`。它不仅记 `compacted`，还记 `turnCounter`、`turnId` 和 `consecutiveFailures`。这说明 autocompact 是一段会被追踪、会失败、会被限流的运行时行为。
 
 源码甚至写了一个很直白的注释：全球每天曾经浪费大量 API calls 在连续失败的 autocompact 上，所以 `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3`，再失败就触发 circuit breaker。这里的气质非常好，像一个终于受不了浪费的人：你可以失败，但不能无限次、无记忆地失败。
@@ -133,12 +143,6 @@ Claude Code 的源码在几个层面共同支持这个判断：
 - `autoCompact.ts` 为 compact 预留输出预算、缓冲区和失败熔断，说明上下文窗口要按风险来经营
 - `compact.ts` 在摘要后恢复计划、文件、技能、工具附件和 hook 状态，说明 compact 的目标是重建工作语义，而不是写一段好看的总结
 
-如果把这些抽象成可迁移的工程原则，大概有这样几条：
-
-- 长期规则、长期记忆、会话连续性，应该分层，不该混写
-- 入口型记忆必须短小，否则整个系统会被入口拖垮
-- session summary 应该服务于“继续工作”，而不是服务于“回忆完整”
-- compact 是上下文治理主路径
-- 压缩后的上下文必须保住运行语义，而不是只保住语言表面
+抽成工程原则：长期规则 / 长期记忆 / 会话连续性应分层，不混写；入口型记忆必须短小；session summary 服务“继续工作”，不是“回忆完整”；compact 是主路径，不是异常；压缩后必须保住运行语义。
 
 下一章要讲的是这套治理系统碰到极限时怎么办。因为一个真系统终究会出错：prompt too long，max output tokens，hook 死循环，恢复分支相互打架。到那时你才看得出来，一个代理系统到底是在“赌不出事”，还是在认真设计出事之后如何继续运行。
